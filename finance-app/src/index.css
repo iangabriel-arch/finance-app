@@ -1,0 +1,292 @@
+/* ==========================================================================
+   SPENDLY CORES & GLOBAL DESIGN TOKENS
+   ========================================================================== */
+:root {
+  --neon-cyan: #00f0ff;
+  --neon-green: #00ffaa;
+  --neon-purple: #9d4ede;
+  --neon-red: #ff3366;
+  --bg-dark: #020613;
+  --card-bg: rgba(11, 19, 43, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.04);
+  --text-main: #f3f4f6;
+  --text-muted: #6b7280;
+}
+
+/* Base Body Environment Settings */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography Scale Foundations */
+h1, h2, h3, h4, .brand-font {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  display: block;
+}
+
+/* Global Cyber Input Styles */
+.cyber-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+.cyber-input:focus {
+  border-color: var(--neon-cyan);
+}
+
+/* ==========================================================================
+   MASTER ADAPTIVE LAYOUT ARCHITECTURE
+   ========================================================================== */
+
+.app-viewport-wrapper {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.dashboard-content-container {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 88px 24px 32px 24px;
+  box-sizing: border-box;
+}
+
+/* --- DESKTOP 2-COLUMN WORKSPACE GRID (>= 1024px) --- */
+.desktop-hardware-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr; /* Rigid utility input panel + Fluid intelligence engine */
+  gap: 32px;
+  align-items: start;
+  width: 100%;
+}
+
+/* ==========================================================================
+   VISUAL LAYERING & GLASSMORPHISM REACTION MOTORS
+   ========================================================================== */
+.consumer-card {
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border) !important;
+  padding: 24px !important;
+  border-radius: 16px !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.25s ease, 
+              box-shadow 0.25s ease !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+/* Premium Hover Elevation Matrix Responses */
+@media (min-width: 1024px) {
+  .consumer-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 240, 255, 0.15) !important;
+    box-shadow: 0 12px 30px rgba(0, 240, 255, 0.03), 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
+/* Smooth Glowing Slider Handles */
+input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* ==========================================================================
+   INTERCEPTOR: MOBILE-FIRST RESPONSIVE OVERRIDES (< 1023px)
+   ========================================================================== */
+@media (max-width: 1023px) {
+  /* Hide desktop summary block rows on compact viewports */
+  .desktop-only-summary-row {
+    display: none !important;
+  }
+
+  /* Unravel horizontal column splits back into raw vertical layout pipelines */
+  .desktop-hardware-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* Flatten inner grid side-by-side elements (Debts vs Goals splits) */
+  div[style*="gridTemplateColumns: 1fr 1fr"],
+  div[style*="gridTemplateColumns: 1.25fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* Shave side tracking paddings to save screen real estate */
+  .dashboard-content-container {
+    padding: 76px 14px 96px 14px !important;
+  }
+
+  /* Soften mobile glass card panels */
+  .consumer-card {
+    padding: 20px !important;
+    border-radius: 20px !important;
+    background: rgba(11, 19, 43, 0.4) !important;
+  }
+
+  /* Deactivate transform mechanics on capacitive touch screens */
+  .consumer-card:hover {
+    transform: none !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--glass-border) !important;
+  }
+}
+/* Ensure structural child containers expand to full screen real estate on mobile devices */
+@media (max-width: 1023px) {
+  .dashboard-split-columns {
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  
+  .dashboard-split-columns > div {
+    width: 100% !important;
+    flex: none !important;
+  }
+  
+  /* Prevent any internal input element padding blowout */
+  input, button {
+    max-width: 100% !important;
+  }
+}
+/* ==========================================================================
+   RESPONSIVE NAVBAR MEDIA ENGINE OVERRIDES
+   ========================================================================== */
+
+/* --- Desktop Layout Spacing Framework (Default) --- */
+.global-cyber-nav {
+  padding: 0 24px;
+}
+.nav-brand-text {
+  font-size: 18px;
+}
+.nav-links-wrapper {
+  gap: 12px;
+}
+.nav-link-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+.nav-score-badge {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.mobile-nav-label {
+  display: none; /* Hidden on Desktop */
+}
+
+/* --- Mobile Layout Spacing Framework Overrides (< 1023px) --- */
+@media (max-width: 1023px) {
+  .global-cyber-nav {
+    padding: 0 10px !important; /* Open up side real estate limits */
+  }
+
+  .nav-brand-text {
+    font-size: 14px !important; /* Shrink logo print footprint */
+  }
+  
+  .nav-brand-container gap {
+    gap: 6px !important;
+  }
+
+  .nav-links-wrapper {
+    gap: 2px !important; /* Bring selectors tightly together safely */
+  }
+
+  .nav-link-btn {
+    padding: 6px 8px !important; /* Shave extra tap boundary fat */
+    font-size: 11px !important;   /* Reduce text crowding score */
+  }
+
+  .nav-score-badge {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+  }
+
+  /* Swap long names for shorter variants on tiny viewports */
+  .desktop-nav-label {
+    display: none !important;
+  }
+  .mobile-nav-label {
+    display: inline-block !important;
+  }
+  
+  /* Readjust bottom active line layout offset */
+  .nav-link-btn div[style*="bottom"] {
+    bottom: -24px !important;
+    left: 6px !important;
+    right: 6px !important;
+  }
+}
+/* ==========================================================================
+   MOBILE NATIVE RESPONSIVITY & ACCESSIBILITY ENHANCEMENTS
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+  /* Prevent horizontal view bouncing across all mobile panels */
+  html, body {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    position: relative;
+  }
+
+  /* Increase tracking dashboard viewport container clearance */
+  .dashboard-content-container {
+    padding: 80px 12px 100px 12px !important;
+  }
+
+  /* Make click target items easier to select with thumbs */
+  button, input, select {
+    min-height: 44px; /* Matches mobile iOS/Android touch point standard guidelines */
+    font-size: 14px !important; /* Prevents default automatic zooming in on Safari */
+  }
+
+  /* Force chart components to scale accurately to narrow grids */
+  .recharts-responsive-container {
+    min-width: 100% !important;
+    height: 220px !important; /* Slightly shorter height footprint to fit mobile windows */
+  }
+}
