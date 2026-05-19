@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFinanceData } from '../context/FinanceContext';
+import { UserButton } from '@clerk/clerk-react';
 
 const Navbar = ({ activePage, setActivePage }) => {
   const { compactNotation, setCompactNotation } = useFinanceData();
@@ -113,6 +114,7 @@ const Navbar = ({ activePage, setActivePage }) => {
           <button style={toggleBtnStyle} onClick={() => setCompactNotation(!compactNotation)}>
             👁️ {compactNotation ? 'COMPACT ON' : 'FULL VIEW'}
           </button>
+          <UserButton afterSignOutUrl="/" />
         </div>
       )}
 
@@ -122,7 +124,8 @@ const Navbar = ({ activePage, setActivePage }) => {
           <button style={toggleBtnStyle} onClick={() => setCompactNotation(!compactNotation)}>
             👁️ {compactNotation ? 'COMPACT' : 'FULL'}
           </button>
-          <button style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifycontent: 'space-between', width: '22px', height: '16px', padding: 0 }} onClick={() => setMenuOpen(!menuOpen)}>
+          <UserButton afterSignOutUrl="/" />
+          <button style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '22px', height: '16px', padding: 0 }} onClick={() => setMenuOpen(!menuOpen)}>
             <div style={{ width: '100%', height: '2px', background: '#22d3ee', borderRadius: '2px', transition: 'all 0.2s', transform: menuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
             <div style={{ width: '100%', height: '2px', background: '#22d3ee', borderRadius: '2px', opacity: menuOpen ? 0 : 1, transition: 'all 0.2s' }} />
             <div style={{ width: '100%', height: '2px', background: '#22d3ee', borderRadius: '2px', transition: 'all 0.2s', transform: menuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
