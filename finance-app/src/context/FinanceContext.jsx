@@ -18,7 +18,6 @@ export const FinanceProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // --- NEW: COMPACT FORMAT TOGGLE STATE ---
   const [compactNotation, setCompactNotation] = useState(() => {
     const saved = localStorage.getItem('spendify_compact');
     return saved ? JSON.parse(saved) : false;
@@ -42,21 +41,21 @@ export const FinanceProvider = ({ children }) => {
 
   // --- DYNAMIC CURRENCY FORMATTING ENGINE ---
   const formatCurrency = (value) => {
-    if (compactNotation && value >= 1000) {
-      // Formats 50000 -> 50K or 1250300 -> 1.25M
+    const numericValue = Number(value) || 0;
+    if (compactNotation && numericValue >= 1000) {
       return 'KES ' + new Intl.NumberFormat('en-KE', {
         notation: 'compact',
         compactDisplay: 'short',
         maximumFractionDigits: 1
-      }).format(value);
+      }).format(numericValue);
     }
-    // Default full view: KES 50,000
-    return 'KES ' + Math.round(value).toLocaleString('en-KE');
+    return 'KES ' + Math.round(numericValue).toLocaleString('en-KE');
   };
 
   const addLog = (entry) => {
     const newLog = {
       ...entry,
+      amount: Number(entry.amount) || 0,
       id: crypto.randomUUID(),
       date: new Date().toLocaleDateString('en-KE', { day: 'numeric', month: 'short' })
     };
@@ -65,32 +64,41 @@ export const FinanceProvider = ({ children }) => {
     if (entry.type === 'DEBT_PAYMENT' && entry.associatedDebtId) {
       setDebts(prevDebts => prevDebts.map(debt => {
         if (debt.id === entry.associatedDebtId) {
-          return { ...debt, balance: Math.max(0, debt.balance - entry.amount) };
+          return { ...debt, balance: Math.max(0, Number(debt.balance) - Number(entry.amount)) };
         }
         return debt;
       }));
     }
   };
 
-  const addDebt = (debtData) => setDebts(prev => [...prev, { ...debtData, id: crypto.randomUUID() }]);
-  const addReserve = (reserveData) => setReserves(prev => [...prev, { ...reserveData, id: crypto.randomUUID() }]);
+  const addDebt = (debtData) => setDebts(prev => [...prev, { ...debtData, id: crypto.randomUUID(), balance: Number(debtData.balance) }]);
+  const addReserve = (reserveData) => setReserves(prev => [...prev, { ...reserveData, id: crypto.randomUUID(), currentStanding: Number(reserveData.currentStanding), targetGoalCap: Number(reserveData.targetGoalCap) }]);
   const deleteDebt = (id) => setDebts(prev => prev.filter(d => d.id !== id));
   const deleteLog = (id) => setLogs(prev => prev.filter(l => l.id !== id));
   const deleteReserve = (id) => setReserves(prev => prev.filter(r => r.id !== id));
 
-  const topUpReserve = (id) => {
+  // FIXED: Explicit type-casting & flexible manual increment parameters
+  const topUpReserve = (id, manualAmount = null) => {
     setReserves(prevReserves => prevReserves.map(res => {
       if (res.id === id) {
-        return { ...res, currentStanding: res.currentStanding + (res.monthlyTopUpSetting || 0) };
+        // Use manual parameter value, fallback to setting, fallback to 5000 default
+        const incrementValue = manualAmount !== null 
+          ? Number(manualAmount) 
+          : (Number(res.monthlyTopUpSetting) || 5000);
+        
+        return { 
+          ...res, 
+          currentStanding: Number(res.currentStanding || 0) + incrementValue 
+        };
       }
       return res;
     }));
   };
 
-  const totalOutstandingLiabilities = debts.reduce((sum, d) => sum + d.balance, 0);
-  const securedLiquidReserves = reserves.reduce((sum, r) => sum + r.currentStanding, 0);
-  const dynamicIncome = logs.filter(l => l.type === 'INCOME').reduce((sum, l) => sum + l.amount, 0);
-  const dynamicExpenses = logs.filter(l => l.type === 'EXPENSE').reduce((sum, l) => sum + l.amount, 0);
+  const totalOutstandingLiabilities = debts.reduce((sum, d) => sum + (Number(d.balance) || 0), 0);
+  const securedLiquidReserves = reserves.reduce((sum, r) => sum + (Number(r.currentStanding) || 0), 0);
+  const dynamicIncome = logs.filter(l => l.type === 'INCOME').reduce((sum, l) => sum + (Number(l.amount) || 0), 0);
+  const dynamicExpenses = logs.filter(l => l.type === 'EXPENSE').reduce((sum, l) => sum + (Number(l.amount) || 0), 0);
   const derivedNetMonthlyCashFlow = dynamicIncome - dynamicExpenses;
 
   return (
@@ -98,7 +106,7 @@ export const FinanceProvider = ({ children }) => {
       debts, reserves, logs,
       addDebt, addReserve, topUpReserve, addLog, deleteDebt, deleteLog, deleteReserve,
       totalOutstandingLiabilities, securedLiquidReserves, derivedNetMonthlyCashFlow,
-      compactNotation, setCompactNotation, formatCurrency // <-- Exported tools
+      compactNotation, setCompactNotation, formatCurrency
     }}>
       {children}
     </FinanceContext.Provider>

@@ -17,7 +17,7 @@ const MasterFinancialDashboard = () => {
     totalOutstandingLiabilities = 0,
     securedLiquidReserves = 0,
     derivedNetMonthlyCashFlow = 0,
-    formatCurrency // <-- Integrated formatting engine
+    formatCurrency
   } = useFinanceData();
 
   // --- STATE HANDLERS ---
@@ -96,11 +96,13 @@ const MasterFinancialDashboard = () => {
       setReserveFeedback('⚠️ Enter a valid goal.');
       return;
     }
+    
+    // FIXED: Changed targetGoal to targetGoalCap to align with your Context properties
     addReserve({
       name: 'Emergency Reserve',
-      targetGoal: parseFloat(reserveGoal),
-      currentStanding: securedLiquidReserves || 0,
-      monthlyTopUpSetting: parseFloat(initialTopUpRule) || 0
+      targetGoalCap: parseFloat(reserveGoal),
+      currentStanding: 0,
+      monthlyTopUpSetting: parseFloat(initialTopUpRule) || 5000
     });
     setReserveFeedback('✨ Savings goal set.');
     setReserveGoal('');
@@ -128,18 +130,19 @@ const MasterFinancialDashboard = () => {
     setTimeout(() => setDebtFeedback(''), 2500);
   };
 
+  // FIXED: Refactored top-up constraints to cascade configuration values smoothly
   const handleVaultTopUp = (reserveItem) => {
-    const activeRuleAmount = reserveItem.monthlyTopUpSetting || 0;
-    if (activeRuleAmount <= 0) {
-      setVaultFeedback('⚠️ Set a monthly allocation rule first.');
-      return;
-    }
-    if (derivedNetMonthlyCashFlow < activeRuleAmount) {
+    const incrementAmount = reserveItem.monthlyTopUpSetting || 5000;
+    
+    if (derivedNetMonthlyCashFlow < incrementAmount) {
       setVaultFeedback(`⚠️ Insufficient cash flow to support top-up.`);
+      setTimeout(() => setVaultFeedback(''), 3000);
       return;
     }
-    topUpReserve(reserveItem.id);
-    setVaultFeedback(`Transferred ${formatCurrency(activeRuleAmount)}`);
+    
+    // Explicitly pass the ID and structural value down
+    topUpReserve(reserveItem.id, incrementAmount);
+    setVaultFeedback(`Transferred ${formatCurrency(incrementAmount)}`);
     setTimeout(() => setVaultFeedback(''), 3000);
   };
 
@@ -254,11 +257,13 @@ const MasterFinancialDashboard = () => {
 
             <div style={cardStyle}>
               <h3 style={{ margin: '0 0 14px 0', fontSize: '14px', fontWeight: '600', color: '#fff' }}>Active Savings & Vault Strategy</h3>
+              {vaultFeedback && <div style={{ fontSize: '12px', color: '#eab308', mb: '10px', textAlign: 'center' }}>{vaultFeedback}</div>}
               {reserves.length === 0 ? (
                 <div style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', padding: '10px' }}>No active asset targets configured yet.</div>
               ) : (
                 reserves.map((res) => {
-                  const percent = res.targetGoal > 0 ? Math.min(100, Math.round((res.currentStanding / res.targetGoal) * 100)) : 0;
+                  const target = Number(res.targetGoalCap) || 1;
+                  const percent = Math.min(100, Math.round((Number(res.currentStanding || 0) / target) * 100));
                   return (
                     <div key={res.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#060a12', padding: '12px', borderRadius: '12px', marginBottom: '8px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -267,9 +272,9 @@ const MasterFinancialDashboard = () => {
                           <button 
                             type="button" 
                             onClick={() => handleVaultTopUp(res)} 
-                            style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.2)', color: '#34d399', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '600' }}
+                            style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.2)', color: '#34d399', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
                           >
-                            + {formatCurrency(res.monthlyTopUpSetting)}
+                            + {formatCurrency(res.monthlyTopUpSetting || 5000)}
                           </button>
                           <button type="button" onClick={() => deleteReserve(res.id)} style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '14px', cursor: 'pointer', padding: '4px' }}>✕</button>
                         </div>
@@ -279,7 +284,7 @@ const MasterFinancialDashboard = () => {
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b', ...numericFont }}>
                         <span>Saved: {formatCurrency(res.currentStanding)} ({percent}%)</span>
-                        <span>Goal: {formatCurrency(res.targetGoal)}</span>
+                        <span>Goal: {formatCurrency(target)}</span>
                       </div>
                     </div>
                   );
@@ -491,18 +496,20 @@ const MasterFinancialDashboard = () => {
 
           <div style={{ ...cardStyle, width: '100%', boxSizing: 'border-box' }}>
             <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: '600', color: '#fff' }}>Savings & Vault Strategy</h3>
+            {vaultFeedback && <div style={{ fontSize: '13px', color: '#eab308', marginBottom: '10px', textAlign: 'center' }}>{vaultFeedback}</div>}
             {reserves.length === 0 ? (
               <div style={{ color: '#64748b', fontSize: '14px' }}>No active targets configured.</div>
             ) : (
               reserves.map((res) => {
-                const percent = res.targetGoal > 0 ? Math.min(100, Math.round((res.currentStanding / res.targetGoal) * 100)) : 0;
+                const target = Number(res.targetGoalCap) || 1;
+                const percent = Math.min(100, Math.round((Number(res.currentStanding || 0) / target) * 100));
                 return (
                   <div key={res.id} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: '600', color: '#f8fafc', fontSize: '15px' }}>💰 {res.name}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <button type="button" onClick={() => handleVaultTopUp(res)} style={{ background: 'rgba(52, 211, 153, 0.12)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                          Top Up (+{formatCurrency(res.monthlyTopUpSetting)})
+                          Top Up (+{formatCurrency(res.monthlyTopUpSetting || 5000)})
                         </button>
                         <button type="button" onClick={() => deleteReserve(res.id)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }}>✕</button>
                       </div>
@@ -512,7 +519,7 @@ const MasterFinancialDashboard = () => {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#94a3b8', ...numericFont }}>
                       <span>Saved: {formatCurrency(res.currentStanding)}</span>
-                      <span>Target: {formatCurrency(res.targetGoal)}</span>
+                      <span>Target: {formatCurrency(target)}</span>
                     </div>
                   </div>
                 );
@@ -544,23 +551,24 @@ const MasterFinancialDashboard = () => {
             </div>
           </div>
 
+          {/* FIXED BOTTOM: RESTORED ENTIRE ACTIVITY LEDGER CLOSURE LOG MAP */}
           <div style={{ ...cardStyle, width: '100%', boxSizing: 'border-box' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600', color: '#fff' }}>Activity Ledger</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '280px', overflowY: 'auto' }}>
               {logs.length === 0 ? (
-                <div style={{ color: '#64748b', fontSize: '14px', textAlign: 'center', padding: '10px' }}>No transactions recorded yet.</div>
+                <div style={{ color: '#64748b', fontSize: '14px', textAlign: 'center', padding: '10px' }}>No tracked transactions on the system ledger.</div>
               ) : (
                 logs.map((log) => (
-                  <div key={log.id} style={{ background: '#090e1a', padding: '14px 18px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <span style={{ display: 'block', fontWeight: '600', fontSize: '14px', color: '#f1f5f9' }}>{log.description}</span>
-                      <span style={{ fontSize: '12px', color: '#64748b' }}>Date: {log.date} • Type: <span style={{ color: log.type === 'INCOME' ? '#34d399' : log.type === 'DEBT_PAYMENT' ? '#22d3ee' : '#f87171', fontWeight: '600' }}>{log.type}</span></span>
+                  <div key={log.id} style={{ background: '#090e1a', padding: '12px 16px', borderRadius: '12px', display: 'flex', justifyBetween: 'space-between', alignItems: 'center' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: 'block', fontWeight: '600', fontSize: '14px', color: '#f1f5f9', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{log.description}</span>
+                      <span style={{ fontSize: '11px', color: '#64748b' }}>{log.date} • {log.type}</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <span style={{ fontWeight: '700', color: log.type === 'INCOME' ? '#34d399' : log.type === 'DEBT_PAYMENT' ? '#22d3ee' : '#f87171', ...numericFont, fontSize: '15px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontWeight: '700', color: log.type === 'INCOME' ? '#34d399' : log.type === 'DEBT_PAYMENT' ? '#22d3ee' : '#f87171', ...numericFont, fontSize: '14px' }}>
                         {log.type === 'INCOME' ? '+' : '-'} {formatCurrency(log.amount)}
                       </span>
-                      <button type="button" onClick={() => deleteLog(log.id)} style={{ background: 'transparent', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                      <button type="button" onClick={() => deleteLog(log.id)} style={{ background: 'transparent', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '14px' }}>✕</button>
                     </div>
                   </div>
                 ))
