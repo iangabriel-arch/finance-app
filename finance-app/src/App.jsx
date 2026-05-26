@@ -5,7 +5,10 @@ import MasterFinancialDashboard from './pages/MasterFinancialDashboard';
 import Strategies from './pages/Strategies';
 import Simulations from './pages/Simulations';
 import { FinanceProvider } from './context/FinanceContext';
+import { registerSW } from 'virtual:pwa-register';
 
+// Automatically updates the app in the background when you push new code changes
+registerSW({ immediate: true });
 function App() {
   const [activePage, setActivePage] = useState('dashboard');
 
