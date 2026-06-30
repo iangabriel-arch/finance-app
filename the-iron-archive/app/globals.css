@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* =====================================================
+   THE IRON ARCHIVE DESIGN TOKENS
+   ===================================================== */
+
+:root {
+  /* Colors */
+  --color-background: #0b0b0c;
+  --color-surface: #141416;
+  --color-border: #2b2b31;
+  --color-text: #f5f5f4;
+  --color-text-muted: #a1a1aa;
+  --color-primary: #c8a96e;
+}
+
+@theme inline {
+  /* Colors */
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-primary: var(--color-primary);
+
+  /* Typography */
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+}
